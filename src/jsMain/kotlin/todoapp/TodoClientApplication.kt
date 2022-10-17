@@ -10,5 +10,5 @@ import kotlinx.browser.document
 fun main() {
     val container = document.getElementById("root") ?: error("Couldn't find root container!")
 
-    TODO("Client application entry point")
+    TODO("Client application entry point!")
 }
