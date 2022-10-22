@@ -11,7 +11,7 @@ import todoapp.domain.*
 internal class DefaultTodoManager(
     private val todoIdGenerator: TodoIdGenerator,
     private val todoRepository: TodoRepository
-): TodoFind, TodoRegistry, TodoModification, TodoCleanup {
+) : TodoFind, TodoRegistry, TodoModification, TodoCleanup {
 
     private val logger = KotlinLogging.logger("todoapp.application.DefaultTodoManager")
 

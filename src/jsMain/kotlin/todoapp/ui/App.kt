@@ -18,8 +18,9 @@ import todoapp.ui.todo.TodoPage
 import todoapp.ui.welcome.WelcomePage
 
 val App = FC<Props> {
-    val (todoFind, todoRegistry, todoModification, todoCleanup) =
-        TodoManagerFactory.create(URLSearchParams(window.location.search))
+    val (todoFind, todoRegistry, todoModification, todoCleanup) = TodoManagerFactory.create(
+        URLSearchParams(window.location.search)
+    )
 
     ErrorBoundary {
         SnackbarProvider {

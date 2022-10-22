@@ -18,11 +18,19 @@ import todoapp.domain.Todos
  */
 class InMemoryTodoManager(
     private val todoIdGenerator: TodoIdGenerator
-): TodoFind, TodoRegistry, TodoModification, TodoCleanup {
+) : TodoFind, TodoRegistry, TodoModification, TodoCleanup {
 
     private val todos = mutableListOf(
-        Todo(id = todoIdGenerator.generateId(), text = "Task One", createdDate = LocalDateTime.parse("2016-02-15T10:00:00")),
-        Todo(id = todoIdGenerator.generateId(), text = "Task Two", createdDate = LocalDateTime.parse("2016-02-15T10:00:10"))
+        Todo(
+            id = todoIdGenerator.generateId(),
+            text = "Task One",
+            createdDate = LocalDateTime.parse("2016-02-15T10:00:00")
+        ),
+        Todo(
+            id = todoIdGenerator.generateId(),
+            text = "Task Two",
+            createdDate = LocalDateTime.parse("2016-02-15T10:00:10")
+        )
     )
     private val logger = KotlinLogging.logger("todoapp.application.support.InMemoryTodoManager")
 
@@ -31,7 +39,10 @@ class InMemoryTodoManager(
     override suspend fun byId(id: TodoId): Todo = loadTodoById(id)
 
     override suspend fun register(text: String): TodoId {
-        TODO("Todo registration logic is not ready")
+        return Todo.create(text = text, idGenerator = todoIdGenerator).apply {
+            todos.add(this)
+            logger.info { "Registered toto (id: $id)" }
+        }.id
     }
 
     override suspend fun modify(id: TodoId, text: String, completed: Boolean) {
@@ -56,5 +67,6 @@ class InMemoryTodoManager(
         logger.info { "Cleared completed todos" }
     }
 
-    private fun loadTodoById(id: TodoId) = todos.firstOrNull { it.id == id } ?: error("Not Found Todo (id: $id)")
+    private fun loadTodoById(id: TodoId) =
+        todos.firstOrNull { it.id == id } ?: error("Not Found Todo (id: $id)")
 }
