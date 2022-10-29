@@ -22,7 +22,7 @@ class TodoRouter(
     val registry: TodoRegistry,
     val modification: TodoModification,
     val cleanup: TodoCleanup
-): RouterFunction<ServerResponse> {
+) : RouterFunction<ServerResponse> {
 
     private val validator = WriteTodoCommandValidator()
 
@@ -32,10 +32,11 @@ class TodoRouter(
                 ok().bodyValueAndAwait(find.all())
             }
 
-            // TODO 할 일 일련번호로 할 일을 조회하는 HandlerFunction을 작성하세요
-            // 요청 : GET /{id}
-            // 응답 : Todo Instance
-            // 귀뜸: TodoFind 인터페이스가 제공하는 byId 메서드를 이용해보세요
+            GET("/{id}") { request ->
+                val id = TodoId(request.pathVariable("id"))
+
+                ok().bodyValueAndAwait(find.byId(id))
+            }
 
             POST("") { request ->
                 val command = request.awaitBody<WriteTodoCommand>().apply {
@@ -48,19 +49,19 @@ class TodoRouter(
             }
             PUT("/{id}") { request ->
                 val id = TodoId(request.pathVariable("id"))
-                val command = request.awaitBody<WriteTodoCommand>()
-
-                // TODO command 객체 값을 검증하세요
-                // 귀띔: 할 일 등록하기 핸들러의 코드를 잘 살펴보세요
+                val command = request.awaitBody<WriteTodoCommand>().apply {
+                    validator.process(target = this)
+                }
 
                 modification.modify(id, command.text, command.completed)
                 ok().bodyValueAndAwait(find.byId(id))
             }
 
-            // TODO 할 일을 정리하는 HandlerFunction을 작성하세요
-            // 요청 : DELETE /{id}
-            // 응답 : Unit
-            // 귀뜸: TodoCleanup 인터페이스가 제공하는 clear 메서드를 이용해보세요
+            DELETE("/{id}") { request ->
+                cleanup.clear(TodoId(request.pathVariable("id")))
+
+                ok().buildAndAwait()
+            }
 
             POST("/clear-completed") {
                 cleanup.clearAllCompleted()
