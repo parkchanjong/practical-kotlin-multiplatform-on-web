@@ -5,7 +5,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import org.w3c.dom.url.URLSearchParams
 import todoapp.application.support.InMemoryTodoManager
-import todoapp.domain.RandomTodoIdGenerator
+import todoapp.domain.UUIDTodoIdGenerator
 import todoapp.serializer.Serializers
 import todoapp.web.client.HttpClientTodoManager
 
@@ -14,20 +14,17 @@ import todoapp.web.client.HttpClientTodoManager
  */
 object TodoManagerFactory {
 
-    fun create(params: URLSearchParams) = when(params.get("mode")) {
-        "remote" -> UseCases.of(
-            HttpClientTodoManager(
-                httpClient = HttpClient(io.ktor.client.engine.js.Js) {
-                    install(ContentNegotiation) {
-                        json(Serializers.JSON)
-                    }
-                    expectSuccess = true
-                }
-            )
-        )
+    fun create(params: URLSearchParams) = when (params.get("mode")) {
+        "remote" -> UseCases.of(HttpClientTodoManager(httpClient = HttpClient(io.ktor.client.engine.js.Js) {
+            install(ContentNegotiation) {
+                json(Serializers.JSON)
+            }
+            expectSuccess = true
+        }))
+
         else -> UseCases.of(
             InMemoryTodoManager(
-                todoIdGenerator = RandomTodoIdGenerator()
+                todoIdGenerator = UUIDTodoIdGenerator()
             )
         )
     }
@@ -42,17 +39,11 @@ object TodoManagerFactory {
         companion object {
 
             fun of(manager: InMemoryTodoManager) = UseCases(
-                find = manager,
-                registry = manager,
-                modification = manager,
-                cleanup = manager
+                find = manager, registry = manager, modification = manager, cleanup = manager
             )
 
             fun of(manager: HttpClientTodoManager) = UseCases(
-                find = manager,
-                registry = manager,
-                modification = manager,
-                cleanup = manager
+                find = manager, registry = manager, modification = manager, cleanup = manager
             )
         }
     }
